@@ -105,7 +105,7 @@ export default function Sidebar({ activeTab, setActiveTab, adminUser, handleLogo
         <div className="flex items-center gap-3 p-1.5 rounded-lg overflow-hidden">
           {adminUser?.profilePic ? (
             <img
-              src={`${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/${adminUser.profilePic}`}
+              src={adminUser.profilePic?.startsWith('http') ? adminUser.profilePic : `${import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000'}/${adminUser.profilePic}`}
               alt="profile"
               className="w-9 h-9 rounded-xl object-cover shrink-0 border border-slate-700"
             />
