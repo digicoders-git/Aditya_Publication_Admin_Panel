@@ -1,0 +1,26 @@
+@import 'tailwindcss';
+
+/* ── Theme Variables ── */
+:root {
+  --accent: 99 102 241;   /* indigo */
+  --font: 'Inter', sans-serif;
+}
+
+[data-theme="indigo"]  { --accent: 99 102 241; }
+[data-theme="violet"]  { --accent: 139 92 246; }
+[data-theme="rose"]    { --accent: 244 63 94; }
+[data-theme="emerald"] { --accent: 16 185 129; }
+[data-theme="amber"]   { --accent: 245 158 11; }
+[data-theme="cyan"]    { --accent: 6 182 212; }
+
+[data-font="inter"]    { font-family: 'Inter', sans-serif; }
+[data-font="mono"]     { font-family: 'JetBrains Mono', 'Fira Code', monospace; }
+[data-font="serif"]    { font-family: 'Georgia', serif; }
+[data-font="system"]   { font-family: system-ui, sans-serif; }
+
+/* Accent utility via CSS var */
+.accent-bg   { background-color: rgb(var(--accent)); }
+.accent-text { color: rgb(var(--accent)); }
+.accent-border { border-color: rgb(var(--accent)); }
+.accent-ring { --tw-ring-color: rgb(var(--accent)); }
+.accent-shadow { box-shadow: 0 10px 30px -5px rgb(var(--accent) / 0.3); }
