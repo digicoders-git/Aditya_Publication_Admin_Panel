@@ -9,7 +9,8 @@ import {
   FiSettings, 
   FiLogOut, 
   FiBookOpen,
-  FiSliders
+  FiSliders,
+  FiTag
 } from 'react-icons/fi';
 import ThemeSettings from './ThemeSettings';
 
@@ -19,6 +20,7 @@ export default function Sidebar({ activeTab, setActiveTab, adminUser, handleLogo
   const navItems = [
     { id: 'dashboard', label: 'Dashboard', icon: FiGrid },
     { id: 'books', label: 'Manage Catalog', icon: FiBook },
+    { id: 'offers', label: 'Special Offers', icon: FiTag },
     { id: 'users', label: 'User Accounts', icon: FiUsers },
     { id: 'orders', label: 'Sales Orders', icon: FiShoppingBag },
     { id: 'payments', label: 'Payments', icon: FiCreditCard },

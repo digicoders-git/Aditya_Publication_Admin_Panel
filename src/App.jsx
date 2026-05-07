@@ -8,6 +8,7 @@ import UserAccounts from './pages/UserAccounts';
 import SalesOrders from './pages/SalesOrders';
 import Payments from './pages/Payments';
 import SalesReports from './pages/SalesReports';
+import ManageOffers from './pages/ManageOffers';
 import ProfileSettings from './pages/ProfileSettings';
 import { FiPlus, FiLogOut, FiTrash2 } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
@@ -28,6 +29,7 @@ export default function App() {
   const [overall, setOverall] = useState({ totalSales: 0, totalOrders: 0 });
   const [monthlySales, setMonthlySales] = useState([]);
   const [stats, setStats] = useState({ totalUsers: 0, totalPDFs: 0, totalHardBooks: 0, totalOrders: 0, totalSales: 0 });
+  const [offers, setOffers] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -94,7 +96,17 @@ export default function App() {
     }
   };
 
-  useEffect(() => { if (token) loadData(); }, [token]);
+  // Load offers separately
+  const loadOffers = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/offers`, { headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) setOffers(data.offers);
+    } catch (err) {}
+  };
+
+  useEffect(() => { if (token) { loadData(); loadOffers(); } }, [token]);
 
   useEffect(() => {
     const fetchAdminMe = async () => {
@@ -251,7 +263,14 @@ export default function App() {
     setLoading(true);
     try {
       const fd = new FormData();
-      Object.keys(formData).forEach(k => fd.append(k, formData[k]));
+      // Auto-calculate discount if oldPrice and price both present
+      const finalFormData = { ...formData };
+      if (finalFormData.oldPrice && finalFormData.price && Number(finalFormData.oldPrice) > Number(finalFormData.price)) {
+        if (!finalFormData.discount || finalFormData.discount === '0') {
+          finalFormData.discount = Math.round((1 - Number(finalFormData.price) / Number(finalFormData.oldPrice)) * 100).toString();
+        }
+      }
+      Object.keys(finalFormData).forEach(k => fd.append(k, finalFormData[k]));
       if (coverFile) fd.append('image', coverFile);
       if (pdfFile) fd.append('pdf', pdfFile);
       const url = editingBookId ? `${API_BASE_URL}/api/admin/books/${editingBookId}` : `${API_BASE_URL}/api/admin/books`;
@@ -267,6 +286,68 @@ export default function App() {
     setEditingBookId(null);
     setFormData({ title: '', author: '', category: '', price: '', oldPrice: '', description: '', pages: '', language: 'English', bookType: 'pdf', badge: '', isAvailable: true, discount: '0' });
     setCoverFile(null); setPdfFile(null);
+  };
+
+  // ── Offer Handlers ──
+  const handleToggleOffer = async (offerId) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/offers/${offerId}/toggle`, { method: 'PATCH', headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        setOffers(offers.map(o => o._id === offerId ? { ...o, isActive: data.isActive } : o));
+        toast.success(data.message);
+      } else toast.error(data.message);
+    } catch (err) { toast.error('Failed to toggle offer'); }
+  };
+
+  const handleDeleteOffer = async (offerId) => {
+    const result = await Swal.fire({
+      title: 'Delete this offer?',
+      text: 'This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#475569',
+      confirmButtonText: 'Yes, delete!',
+      background: '#0f172a',
+      color: '#f1f5f9',
+    });
+    if (!result.isConfirmed) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/offers/${offerId}`, { method: 'DELETE', headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) { setOffers(offers.filter(o => o._id !== offerId)); toast.success(data.message); }
+      else toast.error(data.message);
+    } catch (err) { toast.error('Failed to delete offer'); }
+  };
+
+  const handleSaveOffer = async ({ editingId, form, imageFile }) => {
+    setLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append('title', form.title);
+      fd.append('description', form.description);
+      fd.append('price', form.price);
+      if (form.oldPrice) fd.append('oldPrice', form.oldPrice);
+      // Auto-calc discount if not provided
+      const disc = form.discountPercent || (form.oldPrice && form.price ? Math.round((1 - form.price / form.oldPrice) * 100) : 0);
+      fd.append('discountPercent', disc);
+      fd.append('categories', form.categories);
+      fd.append('isActive', form.isActive);
+      if (imageFile) fd.append('image', imageFile);
+
+      const url = editingId
+        ? `${API_BASE_URL}/api/admin/offers/${editingId}`
+        : `${API_BASE_URL}/api/admin/offers`;
+      const method = editingId ? 'PUT' : 'POST';
+      const res = await fetch(url, { method, headers: getHeaders(), body: fd });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(data.message);
+        loadOffers();
+      } else toast.error(data.message || 'Error saving offer');
+    } catch (err) { toast.error('Server error'); }
+    finally { setLoading(false); }
   };
 
   const handleEditInit = (book) => {
@@ -285,8 +366,8 @@ export default function App() {
     );
   }
 
-  const tabTitles = { dashboard: 'Operations Dashboard', books: 'Book Catalog', users: 'User Administration', orders: 'Order Management', payments: 'Transaction Payments', reports: 'Analytical Sales Reports', settings: 'System Profile Settings', add_edit: editingBookId ? 'Edit Book Details' : 'Publish New Book' };
-  const tabSubs = { dashboard: 'Real-time overview of statistics, database metrics, and performance analytics.', books: 'Add, update, search, and manage books including covers and PDFs.', users: 'Monitor registered customer accounts, view detailed logs, and toggle access blocks.', orders: 'Manage payment status, shipping addresses, order item lists, and dispatching.', payments: 'Monitor verified payments, razorpay order IDs, and transactions logged.', reports: 'Review overall paid revenue trends and monthly performance breakdowns.', settings: 'Update your admin profile, upload avatar pictures, and rotate passwords.', add_edit: 'Provide full specifications to sync seamlessly with the backend MongoDB collections.' };
+  const tabTitles = { dashboard: 'Operations Dashboard', books: 'Book Catalog', offers: 'Special Offers', users: 'User Administration', orders: 'Order Management', payments: 'Transaction Payments', reports: 'Analytical Sales Reports', settings: 'System Profile Settings', add_edit: editingBookId ? 'Edit Book Details' : 'Publish New Book' };
+  const tabSubs = { dashboard: 'Real-time overview of statistics, database metrics, and performance analytics.', books: 'Add, update, search, and manage books including covers and PDFs.', offers: 'Create, manage and toggle special offers shown on the bookstore website.', users: 'Monitor registered customer accounts, view detailed logs, and toggle access blocks.', orders: 'Manage payment status, shipping addresses, order item lists, and dispatching.', payments: 'Monitor verified payments, razorpay order IDs, and transactions logged.', reports: 'Review overall paid revenue trends and monthly performance breakdowns.', settings: 'Update your admin profile, upload avatar pictures, and rotate passwords.', add_edit: 'Provide full specifications to sync seamlessly with the backend MongoDB collections.' };
 
   const themeColors = { indigo: '99 102 241', violet: '139 92 246', rose: '244 63 94', emerald: '16 185 129', amber: '245 158 11', cyan: '6 182 212' };
 
@@ -412,8 +493,9 @@ export default function App() {
 
         {!loading && (
           <>
-            {activeTab === 'dashboard' && <Dashboard stats={stats} books={books} orders={orders} setActiveTab={setActiveTab} API_BASE_URL={API_BASE_URL} />}
-            {activeTab === 'books' && <ManageBooks books={books} searchQuery={searchQuery} setSearchQuery={setSearchQuery} categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter} handleEditInit={handleEditInit} handleDeleteBook={handleDeleteBook} API_BASE_URL={API_BASE_URL} />}
+            {activeTab === 'dashboard' && <Dashboard stats={stats} books={books} orders={orders} setActiveTab={setActiveTab} />}
+            {activeTab === 'books' && <ManageBooks books={books} searchQuery={searchQuery} setSearchQuery={setSearchQuery} categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter} handleEditInit={handleEditInit} handleDeleteBook={handleDeleteBook} />}
+            {activeTab === 'offers' && <ManageOffers offers={offers} onToggle={handleToggleOffer} onDelete={handleDeleteOffer} onSave={handleSaveOffer} />}
             {activeTab === 'users' && <UserAccounts users={users} searchQuery={searchQuery} setSearchQuery={setSearchQuery} handleToggleUserStatus={handleToggleUserStatus} />}
             {activeTab === 'orders' && <SalesOrders orders={orders} handleUpdateOrderStatus={handleUpdateOrderStatus} showHardbooksOnly={showHardbooksOnly} setShowHardbooksOnly={setShowHardbooksOnly} />}
             {activeTab === 'payments' && <Payments payments={payments} totalAmount={paymentsTotal} />}

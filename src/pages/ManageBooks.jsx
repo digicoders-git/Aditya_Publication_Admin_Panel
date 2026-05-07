@@ -14,8 +14,7 @@ export default function ManageBooks({
   categoryFilter, 
   setCategoryFilter, 
   handleEditInit, 
-  handleDeleteBook, 
-  API_BASE_URL 
+  handleDeleteBook 
 }) {
   const filteredBooks = books.filter(book => {
     const matchesSearch = book.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -82,7 +81,7 @@ export default function ManageBooks({
                   <tr key={book._id} className="hover:bg-slate-800/20 transition-all">
                     <td className="py-4 px-6">
                       <img 
-                        src={book.image?.startsWith('http') ? book.image : `${API_BASE_URL}/${book.image}`} 
+                        src={book.image || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500'} 
                         alt="" 
                         onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=500'; }}
                         className="w-11 h-15 object-cover rounded shadow-md border border-slate-800 shrink-0"

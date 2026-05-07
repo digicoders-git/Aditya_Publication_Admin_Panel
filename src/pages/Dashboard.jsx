@@ -20,7 +20,7 @@ Highcharts.setOptions({
   credits: { enabled: false },
 });
 
-export default function Dashboard({ stats, books, orders, setActiveTab, API_BASE_URL }) {
+export default function Dashboard({ stats, books, orders, setActiveTab }) {
   const totalBooks = (stats.totalPDFs || 0) + (stats.totalHardBooks || 0);
 
   const statCards = [
@@ -200,7 +200,7 @@ export default function Dashboard({ stats, books, orders, setActiveTab, API_BASE
             ) : books.slice(0, 5).map((book) => (
               <div key={book._id} className="p-3.5 flex items-center gap-3.5 hover:bg-slate-800/20 transition-all group cursor-pointer">
                 <img
-                  src={book.image?.startsWith('http') ? book.image : `${API_BASE_URL}/${book.image}`}
+                  src={book.image || 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=100'}
                   alt=""
                   onError={(e) => { e.target.src = 'https://images.unsplash.com/photo-1543002588-bfa74002ed7e?w=100'; }}
                   className="w-8 h-11 rounded object-cover border border-slate-800 shrink-0 group-hover:scale-105 transition-transform duration-300"

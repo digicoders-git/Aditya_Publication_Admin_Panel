@@ -11,6 +11,11 @@ export default function ProfileSettings({
   const [mobile, setMobile] = useState(adminUser?.mobile || '');
   const [profilePicFile, setProfilePicFile] = useState(null);
 
+  useEffect(() => {
+    setName(adminUser?.name || '');
+    setMobile(adminUser?.mobile || '');
+  }, [adminUser]);
+
   const [oldPassword, setOldPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
 

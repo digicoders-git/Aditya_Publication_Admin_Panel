@@ -122,13 +122,13 @@ export default function AddEditBook({
 
           <div>
             <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">
-              Discount Percentage (%) <span className="text-slate-500">(Optional)</span>
+              Discount Percentage (%) <span className="text-slate-500">(Auto-calculated or manual)</span>
             </label>
             <input 
               type="number" 
               value={formData.discount}
               onChange={(e) => setFormData({ ...formData, discount: e.target.value })}
-              placeholder="Discount (e.g. 15)"
+              placeholder={formData.oldPrice && formData.price ? `Auto: ${Math.round((1 - formData.price / formData.oldPrice) * 100)}%` : 'e.g. 15'}
               min="0"
               max="100"
               className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none transition-all font-semibold"
