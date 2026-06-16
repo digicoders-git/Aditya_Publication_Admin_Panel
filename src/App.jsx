@@ -21,7 +21,7 @@ const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000
 export default function App() {
   const [token, setToken] = useState(localStorage.getItem('admin_token') || '');
   const [adminUser, setAdminUser] = useState(JSON.parse(localStorage.getItem('admin_details') || 'null'));
-  const [activeTab, setActiveTab] = useState('dashboard');
+  const [activeTab, setActiveTab] = useState(() => localStorage.getItem('admin_active_tab') || 'dashboard');
 
   const [books, setBooks] = useState([]);
   const [users, setUsers] = useState([]);
@@ -53,6 +53,10 @@ export default function App() {
     document.documentElement.setAttribute('data-font', font);
     document.documentElement.setAttribute('data-mode', themeMode);
   }, [theme, font, themeMode]);
+
+  useEffect(() => {
+    localStorage.setItem('admin_active_tab', activeTab);
+  }, [activeTab]);
 
   const [loginEmail, setLoginEmail] = useState('');
   const [loginPassword, setLoginPassword] = useState('');
@@ -192,6 +196,7 @@ export default function App() {
   function handleLogout() {
     localStorage.removeItem('admin_token');
     localStorage.removeItem('admin_details');
+    localStorage.removeItem('admin_active_tab');
     setToken('');
     setAdminUser(null);
     toast('Logged out successfully', { icon: <FiLogOut className="text-slate-400" /> });
