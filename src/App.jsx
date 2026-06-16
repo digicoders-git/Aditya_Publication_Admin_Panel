@@ -9,7 +9,9 @@ import SalesOrders from './pages/SalesOrders';
 import Payments from './pages/Payments';
 import SalesReports from './pages/SalesReports';
 import ManageOffers from './pages/ManageOffers';
+import ManageNews from './pages/ManageNews';
 import ProfileSettings from './pages/ProfileSettings';
+import ManageContacts from './pages/ManageContacts';
 import { FiPlus, FiLogOut, FiTrash2 } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -30,6 +32,8 @@ export default function App() {
   const [monthlySales, setMonthlySales] = useState([]);
   const [stats, setStats] = useState({ totalUsers: 0, totalPDFs: 0, totalHardBooks: 0, totalOrders: 0, totalSales: 0 });
   const [offers, setOffers] = useState([]);
+  const [news, setNews] = useState([]);
+  const [contacts, setContacts] = useState([]);
   const [loading, setLoading] = useState(false);
 
   const [searchQuery, setSearchQuery] = useState('');
@@ -54,7 +58,7 @@ export default function App() {
   const [loginPassword, setLoginPassword] = useState('');
 
   const [editingBookId, setEditingBookId] = useState(null);
-  const [formData, setFormData] = useState({ title: '', author: '', category: '', price: '', oldPrice: '', description: '', pages: '', language: 'English', bookType: 'pdf', badge: '', isAvailable: true, discount: '0' });
+  const [formData, setFormData] = useState({ title: '', author: '', category: '', price: '', oldPrice: '', description: '', pages: '', language: 'English', bookType: 'pdf', badge: '', isAvailable: true, discount: '0', isRecommended: false, isSpecialOffer: false, isFeatured: false, isTopBook: false });
   const [coverFile, setCoverFile] = useState(null);
   const [pdfFile, setPdfFile] = useState(null);
 
@@ -64,23 +68,24 @@ export default function App() {
     if (!token) return;
     setLoading(true);
     try {
-      const [statsRes, booksRes, usersRes, ordersRes, paymentsRes, reportsRes] = await Promise.all([
+      const [statsRes, booksRes, usersRes, ordersRes, paymentsRes, reportsRes, contactsRes] = await Promise.all([
         fetch(`${API_BASE_URL}/api/admin/dashboard/stats`, { headers: getHeaders() }),
         fetch(`${API_BASE_URL}/api/admin/books`, { headers: getHeaders() }),
         fetch(`${API_BASE_URL}/api/admin/users`, { headers: getHeaders() }),
         fetch(`${API_BASE_URL}/api/admin/orders`, { headers: getHeaders() }),
         fetch(`${API_BASE_URL}/api/admin/payments`, { headers: getHeaders() }),
         fetch(`${API_BASE_URL}/api/admin/reports/sales`, { headers: getHeaders() }),
+        fetch(`${API_BASE_URL}/api/admin/contacts`, { headers: getHeaders() }),
       ]);
 
-      if (statsRes.status === 401 || booksRes.status === 401 || usersRes.status === 401) {
+      if (statsRes.status === 401 || booksRes.status === 401 || usersRes.status === 401 || contactsRes.status === 401) {
         handleLogout();
         toast.error('Session expired. Please log in again.');
         return;
       }
 
-      const [statsData, booksData, usersData, ordersData, paymentsData, reportsData] = await Promise.all([
-        statsRes.json(), booksRes.json(), usersRes.json(), ordersRes.json(), paymentsRes.json(), reportsRes.json()
+      const [statsData, booksData, usersData, ordersData, paymentsData, reportsData, contactsData] = await Promise.all([
+        statsRes.json(), booksRes.json(), usersRes.json(), ordersRes.json(), paymentsRes.json(), reportsRes.json(), contactsRes.json()
       ]);
 
       if (statsData.success) setStats(statsData.stats);
@@ -89,6 +94,7 @@ export default function App() {
       if (ordersData.success) setOrders(ordersData.orders);
       if (paymentsData.success) { setPayments(paymentsData.payments); setPaymentsTotal(paymentsData.total); }
       if (reportsData.success) { setOverall(reportsData.overall); setMonthlySales(reportsData.monthlySales); }
+      if (contactsData.success) setContacts(contactsData.contacts);
     } catch (err) {
       toast.error('Failed to connect to server. Please check if backend is running.');
     } finally {
@@ -106,7 +112,17 @@ export default function App() {
     } catch (err) {}
   };
 
-  useEffect(() => { if (token) { loadData(); loadOffers(); } }, [token]);
+  // Load news separately
+  const loadNews = async () => {
+    if (!token) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/news`, { headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) setNews(data.news);
+    } catch (err) {}
+  };
+
+  useEffect(() => { if (token) { loadData(); loadOffers(); loadNews(); } }, [token]);
 
   useEffect(() => {
     const fetchAdminMe = async () => {
@@ -257,6 +273,29 @@ export default function App() {
     } catch (err) { toast.error('Failed to delete book'); }
   };
 
+  const handleDeleteContact = async (contactId) => {
+    const result = await Swal.fire({
+      title: 'Are you sure?',
+      text: "This message will be permanently deleted!",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#475569',
+      confirmButtonText: 'Yes, delete it!',
+      background: '#0f172a',
+      color: '#f1f5f9'
+    });
+    if (!result.isConfirmed) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/contacts/${contactId}`, { method: 'DELETE', headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        setContacts(contacts.filter(c => c._id !== contactId));
+        toast.success(data.message || 'Message deleted successfully');
+      } else toast.error(data.message);
+    } catch (err) { toast.error('Failed to delete message'); }
+  };
+
   const handleSubmitBook = async (e) => {
     e.preventDefault();
     if (!formData.title || !formData.author || !formData.category || !formData.price) { toast.error('Please fill in all required fields!'); return; }
@@ -284,7 +323,7 @@ export default function App() {
 
   const resetBookForm = () => {
     setEditingBookId(null);
-    setFormData({ title: '', author: '', category: '', price: '', oldPrice: '', description: '', pages: '', language: 'English', bookType: 'pdf', badge: '', isAvailable: true, discount: '0' });
+    setFormData({ title: '', author: '', category: '', price: '', oldPrice: '', description: '', pages: '', language: 'English', bookType: 'pdf', badge: '', isAvailable: true, discount: '0', isRecommended: false, isSpecialOffer: false, isFeatured: false, isTopBook: false });
     setCoverFile(null); setPdfFile(null);
   };
 
@@ -350,9 +389,66 @@ export default function App() {
     finally { setLoading(false); }
   };
 
+  // ── News Handlers ──
+  const handleToggleNewsStatus = async (newsId) => {
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/news/${newsId}/toggle`, { method: 'PATCH', headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) {
+        setNews(news.map(n => n._id === newsId ? { ...n, isPublished: data.isPublished } : n));
+        toast.success(data.message);
+      } else toast.error(data.message);
+    } catch (err) { toast.error('Failed to toggle news status'); }
+  };
+
+  const handleDeleteNews = async (newsId) => {
+    const result = await Swal.fire({
+      title: 'Delete this news article?',
+      text: 'This action cannot be undone.',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#e11d48',
+      cancelButtonColor: '#475569',
+      confirmButtonText: 'Yes, delete!',
+      background: '#0f172a',
+      color: '#f1f5f9',
+    });
+    if (!result.isConfirmed) return;
+    try {
+      const res = await fetch(`${API_BASE_URL}/api/admin/news/${newsId}`, { method: 'DELETE', headers: getHeaders() });
+      const data = await res.json();
+      if (data.success) { setNews(news.filter(n => n._id !== newsId)); toast.success(data.message); }
+      else toast.error(data.message);
+    } catch (err) { toast.error('Failed to delete news article'); }
+  };
+
+  const handleSaveNews = async ({ editingId, form, imageFile }) => {
+    setLoading(true);
+    try {
+      const fd = new FormData();
+      fd.append('title', form.title);
+      fd.append('excerpt', form.excerpt);
+      fd.append('author', form.author);
+      fd.append('isPublished', form.isPublished);
+      if (imageFile) fd.append('image', imageFile);
+
+      const url = editingId
+        ? `${API_BASE_URL}/api/admin/news/${editingId}`
+        : `${API_BASE_URL}/api/admin/news`;
+      const method = editingId ? 'PUT' : 'POST';
+      const res = await fetch(url, { method, headers: getHeaders(), body: fd });
+      const data = await res.json();
+      if (data.success) {
+        toast.success(data.message);
+        loadNews();
+      } else toast.error(data.message || 'Error saving news article');
+    } catch (err) { toast.error('Server error'); }
+    finally { setLoading(false); }
+  };
+
   const handleEditInit = (book) => {
     setEditingBookId(book._id);
-    setFormData({ title: book.title || '', author: book.author || '', category: book.category || '', price: book.price || '', oldPrice: book.oldPrice || '', description: book.description || '', pages: book.pages || '', language: book.language || 'English', bookType: book.bookType || 'pdf', badge: book.badge || '', isAvailable: book.isAvailable ?? true, discount: book.discount?.toString() || '0' });
+    setFormData({ title: book.title || '', author: book.author || '', category: book.category || '', price: book.price || '', oldPrice: book.oldPrice || '', description: book.description || '', pages: book.pages || '', language: book.language || 'English', bookType: book.bookType || 'pdf', badge: book.badge || '', isAvailable: book.isAvailable ?? true, discount: book.discount?.toString() || '0', isRecommended: book.isRecommended ?? false, isSpecialOffer: book.isSpecialOffer ?? false, isFeatured: book.isFeatured ?? false, isTopBook: book.isTopBook ?? false });
     setCoverFile(null); setPdfFile(null); setActiveTab('add_edit');
   };
 
@@ -366,8 +462,8 @@ export default function App() {
     );
   }
 
-  const tabTitles = { dashboard: 'Operations Dashboard', books: 'Book Catalog', offers: 'Special Offers', users: 'User Administration', orders: 'Order Management', payments: 'Transaction Payments', reports: 'Analytical Sales Reports', settings: 'System Profile Settings', add_edit: editingBookId ? 'Edit Book Details' : 'Publish New Book' };
-  const tabSubs = { dashboard: 'Real-time overview of statistics, database metrics, and performance analytics.', books: 'Add, update, search, and manage books including covers and PDFs.', offers: 'Create, manage and toggle special offers shown on the bookstore website.', users: 'Monitor registered customer accounts, view detailed logs, and toggle access blocks.', orders: 'Manage payment status, shipping addresses, order item lists, and dispatching.', payments: 'Monitor verified payments, razorpay order IDs, and transactions logged.', reports: 'Review overall paid revenue trends and monthly performance breakdowns.', settings: 'Update your admin profile, upload avatar pictures, and rotate passwords.', add_edit: 'Provide full specifications to sync seamlessly with the backend MongoDB collections.' };
+  const tabTitles = { dashboard: 'Operations Dashboard', books: 'Book Catalog', offers: 'Special Offers', news: 'Latest News & Updates', users: 'User Administration', contacts: 'Contact Queries', orders: 'Order Management', payments: 'Transaction Payments', reports: 'Analytical Sales Reports', settings: 'System Profile Settings', add_edit: editingBookId ? 'Edit Book Details' : 'Publish New Book' };
+  const tabSubs = { dashboard: 'Real-time overview of statistics, database metrics, and performance analytics.', books: 'Add, update, search, and manage books including covers and PDFs.', offers: 'Create, manage and toggle special offers shown on the bookstore website.', news: 'Write, manage, and toggle news posts visible on the bookstore website.', users: 'Monitor registered customer accounts, view detailed logs, and toggle access blocks.', contacts: 'View and manage customer contact messages and website enquiries.', orders: 'Manage payment status, shipping addresses, order item lists, and dispatching.', payments: 'Monitor verified payments, razorpay order IDs, and transactions logged.', reports: 'Review overall paid revenue trends and monthly performance breakdowns.', settings: 'Update your admin profile, upload avatar pictures, and rotate passwords.', add_edit: 'Provide full specifications to sync seamlessly with the backend MongoDB collections.' };
 
   const themeColors = { indigo: '99 102 241', violet: '139 92 246', rose: '244 63 94', emerald: '16 185 129', amber: '245 158 11', cyan: '6 182 212' };
 
@@ -496,7 +592,9 @@ export default function App() {
             {activeTab === 'dashboard' && <Dashboard stats={stats} books={books} orders={orders} setActiveTab={setActiveTab} />}
             {activeTab === 'books' && <ManageBooks books={books} searchQuery={searchQuery} setSearchQuery={setSearchQuery} categoryFilter={categoryFilter} setCategoryFilter={setCategoryFilter} handleEditInit={handleEditInit} handleDeleteBook={handleDeleteBook} />}
             {activeTab === 'offers' && <ManageOffers offers={offers} onToggle={handleToggleOffer} onDelete={handleDeleteOffer} onSave={handleSaveOffer} />}
+            {activeTab === 'news' && <ManageNews news={news} onToggle={handleToggleNewsStatus} onDelete={handleDeleteNews} onSave={handleSaveNews} />}
             {activeTab === 'users' && <UserAccounts users={users} searchQuery={searchQuery} setSearchQuery={setSearchQuery} handleToggleUserStatus={handleToggleUserStatus} />}
+            {activeTab === 'contacts' && <ManageContacts contacts={contacts} handleDeleteContact={handleDeleteContact} />}
             {activeTab === 'orders' && <SalesOrders orders={orders} handleUpdateOrderStatus={handleUpdateOrderStatus} showHardbooksOnly={showHardbooksOnly} setShowHardbooksOnly={setShowHardbooksOnly} />}
             {activeTab === 'payments' && <Payments payments={payments} totalAmount={paymentsTotal} />}
             {activeTab === 'reports' && <SalesReports overall={overall} monthlySales={monthlySales} handleSalesReportFetch={handleSalesReportFetch} themeMode={themeMode} />}

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { FiUser, FiUploadCloud, FiLock, FiCheck } from 'react-icons/fi';
 
 export default function ProfileSettings({ 

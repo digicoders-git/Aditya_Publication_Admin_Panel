@@ -239,17 +239,89 @@ export default function AddEditBook({
             ></textarea>
           </div>
 
-          <div className="flex items-center gap-3 md:col-span-2 p-1">
-            <input 
-              type="checkbox" 
-              id="isAvailable" 
-              checked={formData.isAvailable}
-              onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
-              className="w-4 h-4 rounded border-slate-800 text-indigo-600 focus:ring-indigo-500 bg-slate-950 cursor-pointer"
-            />
-            <label htmlFor="isAvailable" className="text-xs font-bold text-slate-300 cursor-pointer select-none">
-              List immediately on bookstore catalog (isAvailable: true)
+          {/* ── Section Visibility Panel ── */}
+          <div className="md:col-span-2">
+            <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+              🗂️ Section Visibility &amp; Availability
             </label>
+            <div className="bg-slate-950 border border-slate-800 rounded-xl p-5 grid grid-cols-1 sm:grid-cols-2 gap-4">
+
+              {/* isAvailable */}
+              <label htmlFor="isAvailable" className="flex items-center justify-between gap-4 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:border-slate-700 cursor-pointer transition-all group">
+                <div>
+                  <p className="text-sm font-bold text-slate-200 group-hover:text-white">📚 Available on Catalog</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Show this book in the public bookstore listing</p>
+                </div>
+                <div className="relative shrink-0">
+                  <input type="checkbox" id="isAvailable" checked={formData.isAvailable}
+                    onChange={(e) => setFormData({ ...formData, isAvailable: e.target.checked })}
+                    className="sr-only peer" />
+                  <div className="w-11 h-6 bg-slate-700 peer-checked:bg-indigo-600 rounded-full transition-colors peer-focus:ring-2 peer-focus:ring-indigo-500"></div>
+                  <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                </div>
+              </label>
+
+              {/* isRecommended */}
+              <label htmlFor="isRecommended" className="flex items-center justify-between gap-4 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:border-emerald-800/50 cursor-pointer transition-all group">
+                <div>
+                  <p className="text-sm font-bold text-slate-200 group-hover:text-emerald-400">⭐ Recommended For You</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Appears in the Recommended section on homepage</p>
+                </div>
+                <div className="relative shrink-0">
+                  <input type="checkbox" id="isRecommended" checked={formData.isRecommended}
+                    onChange={(e) => setFormData({ ...formData, isRecommended: e.target.checked })}
+                    className="sr-only peer" />
+                  <div className="w-11 h-6 bg-slate-700 peer-checked:bg-emerald-600 rounded-full transition-colors peer-focus:ring-2 peer-focus:ring-emerald-500"></div>
+                  <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                </div>
+              </label>
+
+              {/* isSpecialOffer */}
+              <label htmlFor="isSpecialOffer" className="flex items-center justify-between gap-4 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:border-orange-800/50 cursor-pointer transition-all group">
+                <div>
+                  <p className="text-sm font-bold text-slate-200 group-hover:text-orange-400">🏷️ Special Offer</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Appears in the Special Offers section on homepage</p>
+                </div>
+                <div className="relative shrink-0">
+                  <input type="checkbox" id="isSpecialOffer" checked={formData.isSpecialOffer}
+                    onChange={(e) => setFormData({ ...formData, isSpecialOffer: e.target.checked })}
+                    className="sr-only peer" />
+                  <div className="w-11 h-6 bg-slate-700 peer-checked:bg-orange-500 rounded-full transition-colors peer-focus:ring-2 peer-focus:ring-orange-500"></div>
+                  <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                </div>
+              </label>
+
+              {/* isFeatured */}
+              <label htmlFor="isFeatured" className="flex items-center justify-between gap-4 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:border-violet-800/50 cursor-pointer transition-all group">
+                <div>
+                  <p className="text-sm font-bold text-slate-200 group-hover:text-violet-400">✨ Featured Collection</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Appears in the Featured Collections carousel</p>
+                </div>
+                <div className="relative shrink-0">
+                  <input type="checkbox" id="isFeatured" checked={formData.isFeatured}
+                    onChange={(e) => setFormData({ ...formData, isFeatured: e.target.checked })}
+                    className="sr-only peer" />
+                  <div className="w-11 h-6 bg-slate-700 peer-checked:bg-violet-600 rounded-full transition-colors peer-focus:ring-2 peer-focus:ring-violet-500"></div>
+                  <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                </div>
+              </label>
+
+              {/* isTopBook */}
+              <label htmlFor="isTopBook" className="flex items-center justify-between gap-4 p-3 rounded-lg bg-slate-900 border border-slate-800 hover:border-rose-800/50 cursor-pointer transition-all group sm:col-span-2">
+                <div>
+                  <p className="text-sm font-bold text-slate-200 group-hover:text-rose-400">🔥 Top Book This Season</p>
+                  <p className="text-[10px] text-slate-500 mt-0.5">Appears in Top Books This Season grid on homepage</p>
+                </div>
+                <div className="relative shrink-0">
+                  <input type="checkbox" id="isTopBook" checked={formData.isTopBook}
+                    onChange={(e) => setFormData({ ...formData, isTopBook: e.target.checked })}
+                    className="sr-only peer" />
+                  <div className="w-11 h-6 bg-slate-700 peer-checked:bg-rose-600 rounded-full transition-colors peer-focus:ring-2 peer-focus:ring-rose-500"></div>
+                  <div className="absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5"></div>
+                </div>
+              </label>
+
+            </div>
           </div>
 
         </div>
