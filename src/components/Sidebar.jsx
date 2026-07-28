@@ -12,7 +12,8 @@ import {
   FiSliders,
   FiTag,
   FiRss,
-  FiMail
+  FiMail,
+  FiBell
 } from 'react-icons/fi';
 import ThemeSettings from './ThemeSettings';
 
@@ -26,6 +27,7 @@ export default function Sidebar({ activeTab, setActiveTab, adminUser, handleLogo
     { id: 'news', label: 'Manage News', icon: FiRss },
     { id: 'users', label: 'User Accounts', icon: FiUsers },
     { id: 'contacts', label: 'Contact Queries', icon: FiMail },
+    { id: 'notifications', label: 'Notifications', icon: FiBell },
     { id: 'orders', label: 'Sales Orders', icon: FiShoppingBag },
     { id: 'payments', label: 'Payments', icon: FiCreditCard },
     { id: 'reports', label: 'Sales Reports', icon: FiTrendingUp },

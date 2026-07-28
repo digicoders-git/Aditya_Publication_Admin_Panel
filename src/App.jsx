@@ -12,6 +12,7 @@ import ManageOffers from './pages/ManageOffers';
 import ManageNews from './pages/ManageNews';
 import ProfileSettings from './pages/ProfileSettings';
 import ManageContacts from './pages/ManageContacts';
+import ManageNotifications from './pages/ManageNotifications';
 import { FiPlus, FiLogOut, FiTrash2 } from 'react-icons/fi';
 import toast, { Toaster } from 'react-hot-toast';
 import Swal from 'sweetalert2';
@@ -469,8 +470,8 @@ export default function App() {
     );
   }
 
-  const tabTitles = { dashboard: 'Operations Dashboard', books: 'Book Catalog', offers: 'Special Offers', news: 'Latest News & Updates', users: 'User Administration', contacts: 'Contact Queries', orders: 'Order Management', payments: 'Transaction Payments', reports: 'Analytical Sales Reports', settings: 'System Profile Settings', add_edit: editingBookId ? 'Edit Book Details' : 'Publish New Book' };
-  const tabSubs = { dashboard: 'Real-time overview of statistics, database metrics, and performance analytics.', books: 'Add, update, search, and manage books including covers and PDFs.', offers: 'Create, manage and toggle special offers shown on the bookstore website.', news: 'Write, manage, and toggle news posts visible on the bookstore website.', users: 'Monitor registered customer accounts, view detailed logs, and toggle access blocks.', contacts: 'View and manage customer contact messages and website enquiries.', orders: 'Manage payment status, shipping addresses, order item lists, and dispatching.', payments: 'Monitor verified payments, razorpay order IDs, and transactions logged.', reports: 'Review overall paid revenue trends and monthly performance breakdowns.', settings: 'Update your admin profile, upload avatar pictures, and rotate passwords.', add_edit: 'Provide full specifications to sync seamlessly with the backend MongoDB collections.' };
+  const tabTitles = { dashboard: 'Operations Dashboard', books: 'Book Catalog', offers: 'Special Offers', news: 'Latest News & Updates', users: 'User Administration', contacts: 'Contact Queries', notifications: 'Push Notifications', orders: 'Order Management', payments: 'Transaction Payments', reports: 'Analytical Sales Reports', settings: 'System Profile Settings', add_edit: editingBookId ? 'Edit Book Details' : 'Publish New Book' };
+  const tabSubs = { dashboard: 'Real-time overview of statistics, database metrics, and performance analytics.', books: 'Add, update, search, and manage books including covers and PDFs.', offers: 'Create, manage and toggle special offers shown on the bookstore website.', news: 'Write, manage, and toggle news posts visible on the bookstore website.', users: 'Monitor registered customer accounts, view detailed logs, and toggle access blocks.', contacts: 'View and manage customer contact messages and website enquiries.', notifications: 'Send targeted or broadcast notifications to app users.', orders: 'Manage payment status, shipping addresses, order item lists, and dispatching.', payments: 'Monitor verified payments, razorpay order IDs, and transactions logged.', reports: 'Review overall paid revenue trends and monthly performance breakdowns.', settings: 'Update your admin profile, upload avatar pictures, and rotate passwords.', add_edit: 'Provide full specifications to sync seamlessly with the backend MongoDB collections.' };
 
   const themeColors = { indigo: '99 102 241', violet: '139 92 246', rose: '244 63 94', emerald: '16 185 129', amber: '245 158 11', cyan: '6 182 212' };
 
@@ -602,6 +603,7 @@ export default function App() {
             {activeTab === 'news' && <ManageNews news={news} onToggle={handleToggleNewsStatus} onDelete={handleDeleteNews} onSave={handleSaveNews} />}
             {activeTab === 'users' && <UserAccounts users={users} searchQuery={searchQuery} setSearchQuery={setSearchQuery} handleToggleUserStatus={handleToggleUserStatus} />}
             {activeTab === 'contacts' && <ManageContacts contacts={contacts} handleDeleteContact={handleDeleteContact} />}
+            {activeTab === 'notifications' && <ManageNotifications />}
             {activeTab === 'orders' && <SalesOrders orders={orders} handleUpdateOrderStatus={handleUpdateOrderStatus} showHardbooksOnly={showHardbooksOnly} setShowHardbooksOnly={setShowHardbooksOnly} />}
             {activeTab === 'payments' && <Payments payments={payments} totalAmount={paymentsTotal} />}
             {activeTab === 'reports' && <SalesReports overall={overall} monthlySales={monthlySales} handleSalesReportFetch={handleSalesReportFetch} themeMode={themeMode} />}
