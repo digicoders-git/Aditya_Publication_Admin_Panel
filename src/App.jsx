@@ -377,6 +377,8 @@ export default function App() {
       const disc = form.discountPercent || (form.oldPrice && form.price ? Math.round((1 - form.price / form.oldPrice) * 100) : 0);
       fd.append('discountPercent', disc);
       fd.append('categories', form.categories);
+      if (form.offerCode) fd.append('offerCode', form.offerCode);
+      if (form.usageLimit) fd.append('usageLimit', form.usageLimit);
       fd.append('isActive', form.isActive);
       if (imageFile) fd.append('image', imageFile);
 

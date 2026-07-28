@@ -10,6 +10,8 @@ const emptyForm = {
   oldPrice: '',
   discountPercent: '',
   categories: [],   // array of selected categories
+  offerCode: '',
+  usageLimit: '',
   isActive: true,
 };
 
@@ -167,6 +169,8 @@ export default function ManageOffers({ offers, onToggle, onDelete, onSave }) {
       oldPrice: offer.oldPrice || '',
       discountPercent: offer.discountPercent || '',
       categories: Array.isArray(offer.categories) ? offer.categories : [],
+      offerCode: offer.offerCode || '',
+      usageLimit: offer.usageLimit || '',
       isActive: offer.isActive,
     });
     setImageFile(null);
@@ -406,6 +410,29 @@ export default function ManageOffers({ offers, onToggle, onDelete, onSave }) {
                       : 'e.g. 60'}
                     min="0"
                     max="100"
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none font-semibold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Offer Code</label>
+                  <input
+                    type="text"
+                    value={form.offerCode}
+                    onChange={(e) => setForm({ ...form, offerCode: e.target.value.toUpperCase() })}
+                    placeholder="e.g. SUMMER50"
+                    className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none font-semibold"
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Usage Limit</label>
+                  <input
+                    type="number"
+                    value={form.usageLimit}
+                    onChange={(e) => setForm({ ...form, usageLimit: e.target.value })}
+                    placeholder="e.g. 100"
+                    min="1"
                     className="w-full bg-slate-950 border border-slate-800 focus:border-indigo-500 rounded-xl px-4 py-2.5 text-sm text-slate-200 focus:outline-none font-semibold"
                   />
                 </div>
