@@ -35,17 +35,13 @@ export default function Sidebar({ activeTab, setActiveTab, adminUser, handleLogo
   return (
     <aside className="w-full md:w-64 md:h-full bg-slate-900 border-b md:border-b-0 md:border-r border-slate-800 flex flex-col shrink-0">
       {/* Brand Header */}
-      <div className="p-6 border-b border-slate-800 flex items-center gap-3 justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2.5 accent-bg rounded-xl accent-shadow text-white shrink-0">
-            <FiBookOpen className="text-2xl" />
-          </div>
-          <div>
-            <h1 className="font-black text-base leading-tight tracking-wide bg-gradient-to-r from-white to-slate-400 bg-clip-text text-transparent">
-              Aditya Publication
-            </h1>
-            <p className="text-[10px] accent-text font-bold uppercase tracking-widest">Admin Panel</p>
-          </div>
+      <div className="p-5 border-b border-slate-800 flex items-center gap-3 bg-white">
+        <img src="/favicon.png" alt="Logo" className="w-10 h-10 object-contain shrink-0" />
+        <div>
+          <h1 className="font-black text-lg leading-tight tracking-wide text-slate-900">
+            Aditya Publication
+          </h1>
+          <p className="text-[10px] text-emerald-500 font-bold uppercase tracking-widest">Admin Panel</p>
         </div>
       </div>
 
