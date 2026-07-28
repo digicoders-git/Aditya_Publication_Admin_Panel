@@ -415,7 +415,19 @@ export default function ManageOffers({ offers, onToggle, onDelete, onSave }) {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-2">Offer Code</label>
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider">Offer Code</label>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const randomCode = Math.random().toString(36).substring(2, 8).toUpperCase();
+                        setForm({ ...form, offerCode: randomCode });
+                      }}
+                      className="text-[10px] font-bold text-indigo-400 hover:text-indigo-300 cursor-pointer"
+                    >
+                      Auto Generate
+                    </button>
+                  </div>
                   <input
                     type="text"
                     value={form.offerCode}
