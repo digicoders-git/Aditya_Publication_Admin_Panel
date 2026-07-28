@@ -24,7 +24,7 @@ export default function ManageNotifications() {
   const [form, setForm] = useState(emptyForm);
   const [toast, setToast] = useState(null);
 
-  const token = localStorage.getItem('adminToken');
+  const token = localStorage.getItem('admin_token');
   const headers = { 'Content-Type': 'application/json', Authorization: `Bearer ${token}` };
 
   useEffect(() => {
